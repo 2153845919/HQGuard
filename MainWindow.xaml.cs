@@ -16,6 +16,8 @@ public partial class MainWindow : Window
         InitializeComponent();
         Log("程序已启动");
 
+        FirewallEngine.LogCallback = msg => Log(msg);
+
         _blocker = new DomainBlocker(
             new DomainBlocker.DomainConfig("cschannel.anticheatexpert.com", new[] { 80, 443 }),
             new DomainBlocker.DomainConfig("cschannel2.anticheatexpert.com", new[] { 80, 443 })
@@ -26,30 +28,21 @@ public partial class MainWindow : Window
         _monitor.OnLog += msg => Log(msg);
         _monitor.OnHeartbeatLost += OnHeartbeatLost;
 
-        // 启动时检测 WFP 状态
-        _ = CheckWfpStatus();
+        // 检测防火墙状态
+        _ = CheckFirewall();
     }
 
-    async System.Threading.Tasks.Task CheckWfpStatus()
+    async System.Threading.Tasks.Task CheckFirewall()
     {
-        if (WfpEngine.Available)
+        if (FirewallEngine.Init())
         {
-            int ret = WfpEngine.EngineOpen(out var h);
-            if (ret == 0)
-            {
-                WfpEngine.EngineClose(h);
-                WfpStatus.Text = "就绪 ✓";
-                WfpStatus.Foreground = new SolidColorBrush(Colors.Green);
-            }
-            else
-            {
-                WfpStatus.Text = "不可用 (需管理员权限)";
-                WfpStatus.Foreground = new SolidColorBrush(Colors.Red);
-            }
+            WfpStatus.Text = FirewallEngine.ActiveBackend == FirewallEngine.Backend.Wfp
+                ? "WFP ✓" : "iptables ✓";
+            WfpStatus.Foreground = new SolidColorBrush(Colors.Green);
         }
         else
         {
-            WfpStatus.Text = "不支持";
+            WfpStatus.Text = "不可用";
             WfpStatus.Foreground = new SolidColorBrush(Colors.Red);
         }
     }
