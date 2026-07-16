@@ -6,53 +6,24 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-cpp:
+  build:
     runs-on: windows-latest
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Setup VS2022 dev env
-      uses: ilammy/msvc-dev-cmd@v1
-      with:
-        arch: x64
-
-    - name: Build Release x64
-      shell: cmd
-      run: cd ab_source && msbuild "新伪心跳.vcxproj" /p:Configuration=Release /p:Platform=x64 /v:minimal
-
-    - name: Upload exe
-      uses: actions/upload-artifact@v4
-      with:
-        name: 夜白AB伪心跳1.0-x64
-        path: ab_source/x64/Release/ab.exe
-        if-no-files-found: error
-
-    - name: Upload PDB
-      uses: actions/upload-artifact@v4
-      with:
-        name: 夜白AB伪心跳1.0-x64-pdb
-        path: ab_source/x64/Release/ab.pdb
-        if-no-files-found: warn
-
-  build-go:
-    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Go
-        uses: actions/setup-go@v5
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
         with:
-          go-version: '1.22'
+          dotnet-version: '8.0'
 
-      - name: Build MRPORT-Agent for Windows
+      - name: Publish
+        shell: pwsh
         run: |
-          cd mrport-agent
-          go mod tidy
-          GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-s -w" -o "MRPORT-Agent.exe" .
+          dotnet publish -c Release -o _publish -r win-x64 --self-contained true
+          Get-ChildItem _publish
 
-      - name: Upload MRPORT-Agent
+      - name: Upload
         uses: actions/upload-artifact@v4
         with:
-          name: MRPORT-Agent-v1.0.0
-          path: mrport-agent/MRPORT-Agent.exe
+          name: HQ过检测守护程序
+          path: _publish\*
