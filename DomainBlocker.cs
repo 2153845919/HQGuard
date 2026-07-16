@@ -21,7 +21,7 @@ class DomainBlocker : IDisposable
     readonly DomainConfig[] _domains;
     readonly Guid _subLayerKey = Guid.NewGuid();
     readonly CancellationTokenSource _cts = new();
-    readonly TimeSpan _resolveInterval = TimeSpan.FromSeconds(30);
+    readonly TimeSpan _resolveInterval = TimeSpan.FromSeconds(1);
 
     IntPtr _engine = IntPtr.Zero;
     Dictionary<string, HashSet<IPAddress>> _currentIps = new();
