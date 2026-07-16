@@ -19,7 +19,7 @@ jobs:
       - name: Download WinDivert
         shell: pwsh
         run: |
-          curl -L -o WinDivert.zip "https://github.com/basil00/WinDivert/releases/download/v2.2/WinDivert-2.2.zip"
+          curl -L -o WinDivert.zip "https://github.com/basil00/WinDivert/releases/download/v2.2.2/WinDivert-2.2.2-A.zip"
           Expand-Archive WinDivert.zip -DestPath WinDivert -Force
 
       - name: Publish
