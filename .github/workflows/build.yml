@@ -16,10 +16,19 @@ jobs:
         with:
           dotnet-version: '8.0'
 
+      - name: Download WinDivert
+        shell: pwsh
+        run: |
+          curl -L -o WinDivert.zip "https://github.com/basil00/WinDivert/releases/download/v2.2/WinDivert-2.2.zip"
+          Expand-Archive WinDivert.zip -DestPath WinDivert -Force
+
       - name: Publish
         shell: pwsh
         run: |
           dotnet publish -c Release -o _publish -r win-x64 --self-contained true
+          # 复制 WinDivert 驱动
+          Copy-Item "WinDivert/amd64/WinDivert64.sys" "_publish/"
+          Copy-Item "WinDivert/amd64/WinDivert64.dll" "_publish/"
           Get-ChildItem _publish
 
       - name: Upload

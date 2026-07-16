@@ -7,6 +7,7 @@ namespace HQGuard;
 
 public partial class MainWindow : Window
 {
+    readonly DivertEngine _divert;
     readonly DomainBlocker _blocker;
     readonly HeartbeatMonitor _monitor;
     bool _isRunning;
@@ -16,9 +17,9 @@ public partial class MainWindow : Window
         InitializeComponent();
         Log("程序已启动");
 
-        FirewallEngine.LogCallback = msg => Log(msg);
+        _divert = new DivertEngine();
 
-        _blocker = new DomainBlocker(
+        _blocker = new DomainBlocker(_divert,
             new DomainBlocker.DomainConfig("cschannel.anticheatexpert.com", new[] { 80, 443 }),
             new DomainBlocker.DomainConfig("cschannel2.anticheatexpert.com", new[] { 80, 443 })
         );
@@ -28,21 +29,15 @@ public partial class MainWindow : Window
         _monitor.OnLog += msg => Log(msg);
         _monitor.OnHeartbeatLost += OnHeartbeatLost;
 
-        // 检测防火墙状态
-        _ = CheckFirewall();
-    }
-
-    async System.Threading.Tasks.Task CheckFirewall()
-    {
-        if (FirewallEngine.Init())
+        // 检测驱动状态
+        if (_divert.Available)
         {
-            WfpStatus.Text = FirewallEngine.ActiveBackend == FirewallEngine.Backend.Wfp
-                ? "WFP ✓" : "iptables ✓";
+            WfpStatus.Text = "WinDivert ✓";
             WfpStatus.Foreground = new SolidColorBrush(Colors.Green);
         }
         else
         {
-            WfpStatus.Text = "不可用";
+            WfpStatus.Text = "不可用 (缺WinDivert驱动)";
             WfpStatus.Foreground = new SolidColorBrush(Colors.Red);
         }
     }
@@ -65,6 +60,7 @@ public partial class MainWindow : Window
             await _blocker.StartAsync();
             if (!_blocker.Running)
             {
+                Log("[错误] 无法启动，WinDivert 驱动不可用");
                 ToggleBtn.Content = "开启过检测";
                 ToggleBtn.IsEnabled = true;
                 return;
