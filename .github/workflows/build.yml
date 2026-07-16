@@ -1,0 +1,28 @@
+name: Build
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0'
+
+      - name: Publish
+        run: |
+          dotnet publish -c Release -o _publish -r win-x64 --self-contained true
+          dir _publish\*.exe
+
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: HQ过检测守护程序
+          path: _publish\*.exe
