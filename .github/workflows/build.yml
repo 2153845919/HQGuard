@@ -20,15 +20,27 @@ jobs:
         shell: pwsh
         run: |
           curl -L -o WinDivert.zip "https://github.com/basil00/WinDivert/releases/download/v2.2.2/WinDivert-2.2.2-A.zip"
-          Expand-Archive WinDivert.zip -DestPath WinDivert -Force
+          Expand-Archive WinDivert.zip -DestinationPath WinDivert -Force
+          # 查看解压后的结构
+          Get-ChildItem WinDivert -Recurse
 
       - name: Publish
         shell: pwsh
         run: |
           dotnet publish -c Release -o _publish -r win-x64 --self-contained true
-          # 复制 WinDivert 驱动
-          Copy-Item "WinDivert/amd64/WinDivert64.sys" "_publish/"
-          Copy-Item "WinDivert/amd64/WinDivert64.dll" "_publish/"
+          # 复制 WinDivert 驱动 (根据实际路径调整)
+          if (Test-Path "WinDivert/amd64/WinDivert64.sys") {
+            Copy-Item "WinDivert/amd64/WinDivert64.sys" "_publish/"
+            Copy-Item "WinDivert/amd64/WinDivert64.dll" "_publish/"
+            Write-Host "WinDivert 驱动已复制"
+          } elseif (Test-Path "WinDivert/WinDivert64.sys") {
+            Copy-Item "WinDivert/WinDivert64.sys" "_publish/"
+            Copy-Item "WinDivert/WinDivert64.dll" "_publish/"
+            Write-Host "WinDivert 驱动已复制(根目录)"
+          } else {
+            Write-Host "未找到 WinDivert 驱动文件，检查目录结构"
+            Get-ChildItem WinDivert -Recurse
+          }
           Get-ChildItem _publish
 
       - name: Upload
