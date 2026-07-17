@@ -23,11 +23,9 @@ jobs:
           # 下载并提取 WinDivert 驱动
           curl -L -o WinDivert.zip "https://github.com/basil00/WinDivert/releases/download/v2.2.2/WinDivert-2.2.2-A.zip"
           Expand-Archive WinDivert.zip -DestinationPath WinDivert -Force
-          # 自动查找驱动文件
-          $sys = Get-ChildItem -Recurse -Filter WinDivert64.sys | Select-Object -First 1
-          $dll = Get-ChildItem -Recurse -Filter WinDivert64.dll | Select-Object -First 1
-          Copy-Item $sys.FullName "_publish/"
-          Copy-Item $dll.FullName "_publish/"
+          # 从 x64 目录复制驱动文件
+          Copy-Item "WinDivert/WinDivert-2.2.2-A/x64/WinDivert64.sys" "_publish/"
+          Copy-Item "WinDivert/WinDivert-2.2.2-A/x64/WinDivert.dll" "_publish/WinDivert64.dll"
           Write-Host "=== 发布目录 ==="
           Get-ChildItem _publish
 
