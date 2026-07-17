@@ -35,9 +35,9 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- WFP状态 -->
-                <TextBlock Grid.Column="0" Text="WFP引擎:" VerticalAlignment="Center"/>
-                <TextBlock x:Name="WfpStatus" Grid.Column="1" Text="检测中..." 
+                <!-- 引擎状态 -->
+                <TextBlock Grid.Column="0" Text="拦截引擎:" VerticalAlignment="Center"/>
+                <TextBlock x:Name="EngineStatus" Grid.Column="1" Text="检测中..." 
                            Foreground="Gray" Margin="4,0,16,0" VerticalAlignment="Center"/>
 
                 <!-- 拦截状态 -->
